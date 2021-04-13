@@ -1,5 +1,4 @@
-;这里有个bug，在使用dos、vbox、或者bochs直接运行在最后会多出一个数字
-
+;使用jns条件跳转的方式，不会有后面多字的情况
 jmp start
 mytext 	db 'L',0x07,'a',0x07,'b',0x07,'e',0x07,'l',0x07,' ',0x07,'o',0x07
 		db 'f',0x07,'f',0x07,'s',0x07,'e',0x07,'t',0x07,':',0x07
@@ -50,15 +49,27 @@ inc bx		;增1为下一次写入作准备
 loop loop1	;循环，cx控制循环次数
 
 ;将分解出来的位写入显存
-mov cx,5
+;mov cx,5
 
+;loop2:
+;dec bx ;承上，因从bx对应的内存地址获取分解出的位
+;mov al,[bx];将分解出的位，从内存转移到寄存器
+;mov ah,04;设置这个字符的属性
+;mov [es:di],ax;写入显存
+;add di,2; 下一个位置
+;loop loop2
+
+;另一种利用条件转实现循环
+mov bx,number ;重新置为number
+mov si,4
 loop2:
-dec bx ;承上，因从bx对应的内存地址获取分解出的位
-mov al,[bx];将分解出的位，从内存转移到寄存器
+mov al,[bx+si];寻址方式不能使用 ax+bx这种
 mov ah,04;设置这个字符的属性
 mov [es:di],ax;写入显存
-add di,2; 下一个位置
-loop loop2
+add di,2;下一个位置
+
+dec si;必须在这里
+jns loop2 ;标志位sf如果不是1，则跳转，sf是最近一次运算结果的数的最左一位
 
 db 0
 number db 0,0,0,0,0
